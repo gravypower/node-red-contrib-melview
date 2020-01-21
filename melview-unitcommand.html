@@ -1,0 +1,26 @@
+<script type="text/javascript">
+    RED.nodes.registerType('unit-command',{
+        category: 'melview',
+        color: '#a6bbcf',
+        defaults: {
+            melviewConnection: {value:"", type:"melview-connection"},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"unit-command";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="unit-command">
+    <div class="form-row">
+        <label for="node-input-melviewConnection"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-melviewConnection" placeholder="Melview Connection">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="unit-command">
+    <p>Sends a command to an heat pump</p>
+</script>

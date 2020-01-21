@@ -1,0 +1,42 @@
+<script type="text/javascript">
+    RED.nodes.registerType('melview-connection',{
+        category: 'config',
+        defaults: {
+            melviewEndpoint: {
+                value:"https://api.melview.net",
+                required:true
+            },
+            appVersion: {
+                value:"4.3.1104",
+                required:true
+            }
+        },
+        label: function() {
+            return this.melviewEndpoint + "("+ this.credentials.username +")";
+        },
+        credentials: {
+            username: {type:"text"},
+            password: {type:"password"},
+            cookie: {type:"text"}
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="melview-connection">
+    <div class="form-row">
+        <label for="node-config-input-melviewEndpoint"><i class="icon-bookmark"></i> Melview Endpoint</label>
+        <input type="text" id="node-config-input-melviewEndpoint">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-appVersion"><i class="icon-bookmark"></i> AppVersion</label>
+        <input type="text" id="node-config-input-appVersion">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-username"><i class="icon-tag"></i> Username</label>
+        <input type="text" id="node-config-input-username">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-password"><i class="icon-tag"></i> Password</label>
+        <input type="password" id="node-config-input-password">
+    </div>
+</script>
