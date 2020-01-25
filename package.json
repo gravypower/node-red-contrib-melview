@@ -10,12 +10,16 @@
     "type": "git",
     "url": "ssh://git@git.jetbrains.space/gravypowered/node-red-contrib-melview.git"
   },
-  "node-red" : {
+  "node-red": {
     "nodes": {
       "melview-connection": "melview-connection.js",
-      "melview-unitcommand" : "melview-unitcommand.js"
+      "melview-unitcommand": "melview-unitcommand.js"
     }
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "tough-cookie": "latest"
+  }
 }

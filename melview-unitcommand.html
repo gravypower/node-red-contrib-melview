@@ -9,7 +9,25 @@
         outputs:1,
         icon: "file.png",
         label: function() {
-            return this.name||"unit-command";
+            return this.name || " unit-command";
+        },
+        oneditprepare: function () {
+            //alert("HAHAHAHA");
+
+            let melviewConnection = $("#node-input-melviewConnection");
+
+            var config = RED.nodes.node(melviewConnection.val());
+            alert(config);
+            console.log(config);
+            // let rooms = node.melviewConnection.getRooms();
+            // let units = rooms[0].units;
+            // for (let i = 0; i < list.length; i++) // Assume list has all values fetched from db
+            // {
+            //     let unit = units[i];
+            //     let unitOption = $('<option value="' + unit.unitid + '">' + unit.room + '</option>');
+            //
+            //     $('#node-input-unit').append(unitOption)
+            // }
         }
     });
 </script>
@@ -18,6 +36,10 @@
     <div class="form-row">
         <label for="node-input-melviewConnection"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-melviewConnection" placeholder="Melview Connection">
+    </div>
+    <div class="form-row">
+        <label for="node-input-unit"><i class="icon-tag"></i> Unit</label>
+        <select id="node-input-unit" />
     </div>
 </script>
 

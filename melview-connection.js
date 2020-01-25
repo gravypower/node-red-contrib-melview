@@ -1,57 +1,102 @@
-
 module.exports = function(RED) {
-    function MelviewConnectionNode(n) {
-        RED.nodes.createNode(this,n);
-        this.melviewEndpoint = n.melviewEndpoint;
-        this.appVersion = n.appVersion;
-        this.cookie = function()
-        {
-            const https = require('https');
+    const request = require('request');
+    const tough = require('tough-cookie');
+    const Cookie = tough.Cookie;
 
-            var postData = JSON.stringify({
-                "user" : this.credentials.username,
-                "pass" : this.credentials.password,
-                "appversion": this.appVersion
+    function MelviewConnectionNode(config) {
+        RED.nodes.createNode(this, config);
+        this.melviewEndpoint = config.melviewEndpoint;
+        this.appVersion = config.appVersion;
+        let nodeContext = this.context();
+
+        this.getRooms = function () {
+            let postData = JSON.stringify({
+                'user': this.credentials.username,
+                'pass': this.credentials.password,
+                'appversion': this.appVersion
             });
 
-            console.log('postData:', postData);
-
-            var options = {
-                hostname: this.melviewEndpoint,
-                port: 443,
-                path: "/api/login.aspx",
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                    "Content-Length": postData.length
-                }
+            const options = {
+                'method': 'POST',
+                'url': 'https://' + config.melviewEndpoint + '/api/rooms.aspx',
+                'headers': {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'User-Agent': 'request',
+                    'Content-Length': postData.length,
+                    'set-cookie': this.getAuthCookie().value
+                },
+                body: postData
             };
 
-            console.log('options:', options);
+            request(options, function (error, response) {
+                if (error) throw new Error(error);
 
-            var req = https.request(options, (res) => {
-                console.log('statusCode:', res.statusCode);
-                console.log('headers:', res.headers);
+                let rooms = nodeContext.get('rooms');
+                if (typeof rooms != 'undefined') {
+                    return rooms;
+                }
 
-                res.on('data', (d) => {
-                    process.stdout.write(d);
-                });
+                nodeContext.set('rooms', response.body);
+                return response.body;
+            });
+        };
+
+        this.getAuthCookie = function () {
+            let authCookie = nodeContext.get('authCookie');
+            if (typeof authCookie != 'undefined') {
+                return authCookie;
+            }
+
+            let postData = JSON.stringify({
+                'user': this.credentials.username,
+                'pass': this.credentials.password,
+                'appversion': this.appVersion
             });
 
-            req.on('error', (e) => {
-                console.error(e);
-            });
+            const options = {
+                'method': 'POST',
+                'url': 'https://' + config.melviewEndpoint + '/api/login.aspx',
+                'headers': {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'User-Agent': 'request',
+                    'Content-Length': postData.length
+                },
+                body: postData
+            };
 
-            req.write(postData);
-            req.end();
-        }
+            request(options, function (error, response) {
+                if (error) throw new Error(error);
+
+                let cookies;
+                if (response.headers['set-cookie'] instanceof Array)
+                    cookies = response.headers['set-cookie'].map(Cookie.parse);
+                else
+                    cookies = [Cookie.parse(response.headers['set-cookie'])];
+
+                for (let i in cookies) {
+                    let cookie = cookies[i];
+                    cookies[i] = cookie.toJSON();
+                }
+
+                let authCookie = cookies.find(c => c.key === 'auth');
+                nodeContext.set('authCookie', authCookie);
+
+                return authCookie;
+            });
+        };
     }
-    RED.nodes.registerType("melview-connection",
+
+    RED.nodes.registerType('melview-connection',
         MelviewConnectionNode,
         {
             credentials: {
-                username: {type:"text"},
-                password: {type:"password"}
+                username: {type: 'text'},
+                password: {type: 'password'}
             }
         });
-}
+
+};
+
+
+
+
