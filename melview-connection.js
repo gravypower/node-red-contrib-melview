@@ -1,56 +1,24 @@
 module.exports = function(RED) {
     const request = require('request');
-    const tough = require('tough-cookie');
-    const Cookie = tough.Cookie;
+    const cookie = require("cookie");
 
     function MelviewConnectionNode(config) {
         RED.nodes.createNode(this, config);
         this.melviewEndpoint = config.melviewEndpoint;
         this.appVersion = config.appVersion;
-        let nodeContext = this.context();
+        const nodeContext = this.context();
+        const  credentials = this.credentials;
 
-        this.getRooms = function () {
-            let postData = JSON.stringify({
-                'user': this.credentials.username,
-                'pass': this.credentials.password,
-                'appversion': this.appVersion
-            });
-
-            const options = {
-                'method': 'POST',
-                'url': 'https://' + config.melviewEndpoint + '/api/rooms.aspx',
-                'headers': {
-                    'Content-Type': 'application/json; charset=utf-8',
-                    'User-Agent': 'request',
-                    'Content-Length': postData.length,
-                    'set-cookie': this.getAuthCookie().value
-                },
-                body: postData
-            };
-
-            request(options, function (error, response) {
-                if (error) throw new Error(error);
-
-                let rooms = nodeContext.get('rooms');
-                if (typeof rooms != 'undefined') {
-                    return rooms;
-                }
-
-                nodeContext.set('rooms', response.body);
-                return response.body;
-            });
-        };
-
-        this.getAuthCookie = function () {
+        const getAuthCookie = function () {
             let authCookie = nodeContext.get('authCookie');
             if (typeof authCookie != 'undefined') {
                 return authCookie;
             }
 
-            let postData = JSON.stringify({
-                'user': this.credentials.username,
-                'pass': this.credentials.password,
-                'appversion': this.appVersion
+            const  postData = JSON.stringify({
+                'user': credentials.username,
+                'pass': credentials.password,
+                'appversion': config.appVersion
             });
 
             const options = {
@@ -67,23 +35,48 @@ module.exports = function(RED) {
             request(options, function (error, response) {
                 if (error) throw new Error(error);
 
-                let cookies;
-                if (response.headers['set-cookie'] instanceof Array)
-                    cookies = response.headers['set-cookie'].map(Cookie.parse);
-                else
-                    cookies = [Cookie.parse(response.headers['set-cookie'])];
-
-                for (let i in cookies) {
-                    let cookie = cookies[i];
-                    cookies[i] = cookie.toJSON();
-                }
-
-                let authCookie = cookies.find(c => c.key === 'auth');
-                nodeContext.set('authCookie', authCookie);
-
+                nodeContext.set('authCookie', response.headers['set-cookie']);
                 return authCookie;
             });
         };
+
+        RED.httpAdmin.get('/melview/rooms', function(req, res) {
+            console.log('/melview/rooms');
+            let postData = JSON.stringify({
+                'user': credentials.username,
+                'pass': credentials.password,
+                'appversion': config.appVersion
+            });
+
+            const options = {
+                'method': 'POST',
+                'url': 'https://' + config.melviewEndpoint + '/api/rooms.aspx',
+                'headers': {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'User-Agent': 'request',
+                    'Content-Length': postData.length,
+                    'Cookie': getAuthCookie()
+                },
+                body: postData
+            };
+
+            console.log(options);
+
+            request(options, function (error, response) {
+                if (error) throw new Error(error);
+                console.log('https://' + config.melviewEndpoint + '/api/rooms.aspx');
+                const rooms = nodeContext.get('rooms');
+                if (typeof rooms != 'undefined') {
+                    return rooms;
+                }
+
+                nodeContext.set('rooms', response.body);
+
+                res.status(200).send(response.body);
+            });
+        });
+
+        this.getAuthCookie = getAuthCookie();
     }
 
     RED.nodes.registerType('melview-connection',

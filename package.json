@@ -20,6 +20,6 @@
   "license": "ISC",
   "dependencies": {
     "request": "^2.88.0",
-    "tough-cookie": "latest"
+    "cookie": "latest"
   }
 }

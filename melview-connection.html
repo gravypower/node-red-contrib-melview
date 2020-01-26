@@ -3,22 +3,20 @@
         category: 'config',
         defaults: {
             melviewEndpoint: {
-                value:"https://api.melview.net",
+                value:"api.melview.net",
                 required:true
             },
             appVersion: {
                 value:"4.3.1104",
                 required:true
-            },
-            rooms:{}
+            }
         },
         label: function() {
             return this.melviewEndpoint + "("+ this.credentials.username +")";
         },
         credentials: {
             username: {type:"text"},
-            password: {type:"password"},
-            authCookie: {type:"text"},
+            password: {type:"password"}
         },
     });
 </script>
