@@ -1,9 +1,22 @@
 <script type="text/javascript">
     RED.nodes.registerType('unit-command',{
         category: 'melview',
-        color: '#a6bbcf',
         defaults: {
             melviewConnection: {value:"", type:"melview-connection"},
+            building: {value:""},
+            unit: {value:""},
+            power: {value:true},
+            mode: {value:"MD8"},
+            temperature:{value:"26", validate:function(v) {
+                if(isNaN(v))
+                    return false;
+
+                const temp = parseFloat(v);
+                return temp >= 17 || temp <= 31;
+            }},
+            fanspeed: {value:"FS0"},
+            fandirection: {value:"AV0"},
+
         },
         inputs:1,
         outputs:1,
@@ -12,16 +25,60 @@
             return this.name || " unit-command";
         },
         oneditprepare: function () {
-            let melviewConnection = $("#node-input-melviewConnection");
-            // let rooms = node.melviewConnection.getRooms();
-            // let units = rooms[0].units;
-            // for (let i = 0; i < list.length; i++) // Assume list has all values fetched from db
-            // {
-            //     let unit = units[i];
-            //     let unitOption = $('<option value="' + unit.unitid + '">' + unit.room + '</option>');
-            //
-            //     $('#node-input-unit').append(unitOption)
-            // }
+            const melviewConnectionNodeId = this.melviewConnection;
+            const nodeBuildingId = this.building;
+            const nodeUnitId = this.unit;
+
+            $('#node-input-power').change(function() {
+                const powerState = this.checked;
+                $('.power-dependant').each(function() {
+                    $(this).prop('disabled', !powerState );
+                });
+            });
+
+            $.ajax({
+                headers: {
+                    Accept: 'application/json'
+                },
+                cache: !1,
+                url: 'melview/' + melviewConnectionNodeId + '/rooms',
+                success: function (buildings) {
+                    var buildingSelectList = $('#node-input-building').empty();
+                    var unitSelectList = $('#node-input-unit').empty();
+                    const populateUnitSelectList = function(buildingId)
+                    {
+                        var building = $.grep(buildings, function (n, i) {
+                            return (n.buildingid === buildingId);
+                        });
+
+                        building[0].units.forEach(function(r) {
+                            const roomOption = $(`<option value=\'${r.unitid}\'> ${r.room} </option>`)
+                            if(r.unitid === nodeUnitId)
+                            {
+                                roomOption.attr('selected', 'selected');
+                            }
+                            unitSelectList.append(roomOption);
+                        });
+                    };
+
+                    buildings.forEach(function(b) {
+                        const buildingOption = $(`<option value=\'${b.buildingid}\'> ${b.building} </option>`);
+
+                        buildingSelectList.append(buildingOption);
+
+                        if(b.buildingid === nodeBuildingId)
+                        {
+                            buildingOption.attr('selected', 'selected');
+                            populateUnitSelectList(nodeBuildingId);
+                        }
+                    });
+
+                    buildingSelectList.change(function () {
+                        var buildingId = $(this).val();
+                        populateUnitSelectList(buildingId);
+                    });
+                }
+            });
         }
     });
 </script>
@@ -32,11 +89,65 @@
         <input type="text" id="node-input-melviewConnection" placeholder="Melview Connection">
     </div>
     <div class="form-row">
+        <label for="node-input-building"><i class="icon-tag"></i> Building</label>
+        <select id="node-input-building">
+            <option>Select Building</option>
+        </select>
+    </div>
+    <div class="form-row">
         <label for="node-input-unit"><i class="icon-tag"></i> Unit</label>
         <select id="node-input-unit" />
     </div>
+    <div class="form-row">
+        <label for="node-input-power"><i class="icon-tag"></i> Unit</label>
+        <input type="checkbox" id="node-input-power" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="icon-tag"></i> Unit Mode</label>
+        <select id="node-input-mode" class="power-dependant">
+            <option value="MD8">Auto</option>
+            <option value="MD1">Heat</option>
+            <option value="MD2">DRY</option>
+            <option value="MD7">FAN</option>
+            <option value="MD3">Cooling</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-temperature"><i class="icon-tag"></i> Unit set Temperature</label>
+        <input type="text" id="node-input-temperature" class="power-dependant">
+    </div>
+    <div class="form-row">
+        <label for="node-input-fanspeed"><i class="icon-tag"></i> Fan Speed</label>
+        <select id="node-input-fanspeed" class="power-dependant">
+            <option value="FS0">Auto</option>
+            <option value="FS1">One</option>
+            <option value="FS1">Two</option>
+            <option value="FS3">Tree</option>
+            <option value="FS5">Four</option>
+            <option value="FS6">Five</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-fandirection"><i class="icon-tag"></i> Fan Direction</label>
+        <select id="node-input-fandirection" class="power-dependant">
+            <option value="AV0">Auto</option>
+            <option value="AV7">Swing</option>
+            <option value="AV1">Direction 1 (top)</option>
+            <option value="AV2">Direction 2</option>
+            <option value="AV3">Direction 3</option>
+            <option value="AV4">Direction 4</option>
+            <option value="AV5">Direction 5</option>
+        </select>
+    </div>
+
 </script>
 
 <script type="text/html" data-help-name="unit-command">
     <p>Sends a command to an heat pump</p>
+    <ul>
+        <li>
+            Unit set Temperature must be between 16 and 31 degrees celsius
+        </li>
+    </ul>
 </script>

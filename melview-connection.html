@@ -1,22 +1,22 @@
 <script type="text/javascript">
-    RED.nodes.registerType('melview-connection',{
+    RED.nodes.registerType('melview-connection', {
         category: 'config',
         defaults: {
             melviewEndpoint: {
-                value:"api.melview.net",
-                required:true
+                value: "api.melview.net",
+                required: true
             },
             appVersion: {
-                value:"4.3.1104",
-                required:true
+                value: "4.3.1104",
+                required: true
             }
         },
-        label: function() {
-            return this.melviewEndpoint + "("+ this.credentials.username +")";
+        label: function () {
+            return this.melviewEndpoint + "(" + this.credentials.username + ")";
         },
         credentials: {
-            username: {type:"text"},
-            password: {type:"password"}
+            username: {type: "text"},
+            password: {type: "password"}
         },
     });
 </script>
