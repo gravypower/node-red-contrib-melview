@@ -1,31 +1,11 @@
 # node-red-contrib-melview
 
-Short project description goes here.
+Set of node red nodes to communicate with the melview API
 
 ## Getting Started
 
 Download links:
 
-SSH clone URL: ssh://git@git.jetbrains.space/gravypowered/node-red-contrib-melview.git
+SSH clone URL: git@github.com:gravypower/node-red-contrib-melview.git
 
-HTTPS clone URL: https://git.jetbrains.space/gravypowered/node-red-contrib-melview.git
-
-
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-## Prerequisites
-
-What things you need to install the software and how to install them.
-
-```
-Examples
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a production system.
-
-## Resources
-
-Add links to external resources for this project, such as CI server, bug tracker, etc.
+HTTPS clone URL: https://github.com/gravypower/node-red-contrib-melview.git
