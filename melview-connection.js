@@ -5,6 +5,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         this.melviewEndpoint = config.melviewEndpoint;
         this.appVersion = config.appVersion;
+        this.userName = config.userName;
         const nodeContext = this.context();
         const credentials = this.credentials;
         const node = this;
@@ -17,7 +18,7 @@ module.exports = function (RED) {
             }
 
             const postData = JSON.stringify({
-                'user': credentials.username,
+                'user': config.userName,
                 'pass': credentials.password,
                 'appversion': config.appVersion
             });
@@ -72,11 +73,9 @@ module.exports = function (RED) {
         MelviewConnectionNode,
         {
             credentials: {
-                username: {type: 'text'},
                 password: {type: 'password'}
             }
         });
-
 };
 
 

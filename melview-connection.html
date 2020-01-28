@@ -9,16 +9,26 @@
             appVersion: {
                 value: "4.3.1104",
                 required: true
-            }
+            },
+            username: {
+                value: "",
+                required: true
+            },
         },
         label: function () {
-            return this.melviewEndpoint + "(" + this.credentials.username + ")";
+            let labelText = 'Melview Connection';
+            if(this.username != null)
+            {
+                labelText = `${labelText} (${this.username})`;
+            }
+            return labelText;
         },
         credentials: {
-            username: {type: "text"},
             password: {type: "password"}
         },
     });
+
+
 </script>
 
 <script type="text/html" data-template-name="melview-connection">

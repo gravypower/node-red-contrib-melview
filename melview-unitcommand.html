@@ -43,8 +43,8 @@
                 cache: !1,
                 url: 'melview/' + melviewConnectionNodeId + '/rooms',
                 success: function (buildings) {
-                    var buildingSelectList = $('#node-input-building').empty();
-                    var unitSelectList = $('#node-input-unit').empty();
+                    let buildingSelectList = $('#node-input-building').empty();
+                    let unitSelectList = $('#node-input-unit').empty();
                     const populateUnitSelectList = function(buildingId)
                     {
                         var building = $.grep(buildings, function (n, i) {
@@ -99,11 +99,11 @@
         <select id="node-input-unit" />
     </div>
     <div class="form-row">
-        <label for="node-input-power"><i class="icon-tag"></i> Unit</label>
+        <label for="node-input-power"><i class="icon-tag"></i> Power</label>
         <input type="checkbox" id="node-input-power" />
     </div>
     <div class="form-row">
-        <label for="node-input-mode"><i class="icon-tag"></i> Unit Mode</label>
+        <label for="node-input-mode"><i class="icon-tag"></i> Mode</label>
         <select id="node-input-mode" class="power-dependant">
             <option value="MD8">Auto</option>
             <option value="MD1">Heat</option>
@@ -113,7 +113,7 @@
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-temperature"><i class="icon-tag"></i> Unit set Temperature</label>
+        <label for="node-input-temperature"><i class="icon-tag"></i> Set Temperature</label>
         <input type="text" id="node-input-temperature" class="power-dependant">
     </div>
     <div class="form-row">
