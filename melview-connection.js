@@ -5,7 +5,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         this.melviewEndpoint = config.melviewEndpoint;
         this.appVersion = config.appVersion;
-        this.userName = config.userName;
+        this.username = config.username;
         const nodeContext = this.context();
         const credentials = this.credentials;
         const node = this;
@@ -18,10 +18,12 @@ module.exports = function (RED) {
             }
 
             const postData = JSON.stringify({
-                'user': config.userName,
+                'user': config.username,
                 'pass': credentials.password,
                 'appversion': config.appVersion
             });
+
+
 
             const options = {
                 'method': 'POST',
@@ -34,6 +36,7 @@ module.exports = function (RED) {
                 body: postData
             };
 
+            console.log(options);
             request(options, function (error, response) {
                 if (error) throw new Error(error);
                 nodeContext.set('authCookie', response.headers['set-cookie']);
