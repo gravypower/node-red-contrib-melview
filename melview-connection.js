@@ -23,8 +23,6 @@ module.exports = function (RED) {
                 'appversion': config.appVersion
             });
 
-
-
             const options = {
                 'method': 'POST',
                 'url': 'https://' + config.melviewEndpoint + '/api/login.aspx',
