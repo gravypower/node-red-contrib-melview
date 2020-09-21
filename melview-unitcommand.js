@@ -42,8 +42,7 @@ module.exports = function (RED) {
         node.on('input', function (msg) {
             let commands = [];
             if (config.power) {
-                commands.push('PW1');
-
+                addCommand(config.power, commands);
                 addCommand(config.mode, commands);
                 addCommand(config.fanspeed, commands);
                 addCommand(config.direction, commands);

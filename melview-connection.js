@@ -3,18 +3,22 @@ module.exports = function (RED) {
 
     function MelviewConnectionNode(config) {
         RED.nodes.createNode(this, config);
+
         this.melviewEndpoint = config.melviewEndpoint;
         this.appVersion = config.appVersion;
         this.username = config.username;
+
         const nodeContext = this.context();
         const credentials = this.credentials;
         const node = this;
 
         this.getAuthCookie = function (callback) {
             let authCookie = nodeContext.get('authCookie');
+
             if (typeof authCookie != 'undefined') {
                 node.log("Returning cookie form context.");
                 callback(authCookie);
+                return;
             }
 
             const postData = JSON.stringify({
@@ -61,6 +65,7 @@ module.exports = function (RED) {
                     let rooms;
                     try {
                         rooms = JSON.parse(response.body);
+                        console.log(JSON.stringify(rooms));
                         res.send(rooms);
                     } catch (e) {
                         node.error(`error: ${e.message}`);
