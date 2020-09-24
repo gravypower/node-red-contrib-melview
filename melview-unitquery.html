@@ -1,0 +1,95 @@
+<script type="text/javascript">
+    RED.nodes.registerType('unit-query',{
+        category: 'melview',
+        defaults: {
+            melviewConnection: {value:"", type:"melview-connection"},
+            building: {value:""},
+            unit: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name || " unit-query";
+        },
+        oneditprepare: function () {
+            const melviewConnectionNodeId = this.melviewConnection;
+            const nodeBuildingId = this.building;
+            const nodeUnitId = this.unit;
+
+            $('#node-input-power').change(function() {
+                const powerState = this.checked;
+                $('.power-dependant').each(function() {
+                    $(this).prop('disabled', !powerState );
+                });
+            });
+
+            $.ajax({
+                headers: {
+                    Accept: 'application/json'
+                },
+                cache: !1,
+                url: 'melview/' + melviewConnectionNodeId + '/rooms',
+                success: function (buildings) {
+                    let buildingSelectList = $('#node-input-building').empty();
+                    let unitSelectList = $('#node-input-unit').empty();
+                    const populateUnitSelectList = function(buildingId)
+                    {
+                        var building = $.grep(buildings, function (n, i) {
+                            return (n.buildingid === buildingId);
+                        });
+
+                        building[0].units.forEach(function(r) {
+                            const roomOption = $(`<option value=\'${r.unitid}\'> ${r.room} </option>`)
+                            if(r.unitid === nodeUnitId)
+                            {
+                                roomOption.attr('selected', 'selected');
+                            }
+                            unitSelectList.append(roomOption);
+                        });
+                    };
+
+                    buildings.forEach(function(b) {
+                        const buildingOption = $(`<option value=\'${b.buildingid}\'> ${b.building} </option>`);
+
+                        buildingSelectList.append(buildingOption);
+
+                        if(b.buildingid === nodeBuildingId)
+                        {
+                            buildingOption.attr('selected', 'selected');
+                            populateUnitSelectList(nodeBuildingId);
+                        }
+                    });
+
+                    buildingSelectList.change(function () {
+                        var buildingId = $(this).val();
+                        populateUnitSelectList(buildingId);
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="unit-query">
+    <div class="form-row">
+        <label for="node-input-melviewConnection"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-melviewConnection" placeholder="Melview Connection">
+    </div>
+    <div class="form-row">
+        <label for="node-input-building"><i class="icon-tag"></i> Building</label>
+        <select id="node-input-building">
+            <option>Select Building</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-unit"><i class="icon-tag"></i> Unit</label>
+        <select id="node-input-unit" />
+    </div>
+
+
+</script>
+
+<script type="text/html" data-help-name="unit-command">
+    <p>Sends a command to an heat pump</p>
+</script>

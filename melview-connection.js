@@ -1,5 +1,6 @@
 module.exports = function (RED) {
     const request = require('request');
+    const NodeCache = require( "node-cache" );
 
     function MelviewConnectionNode(config) {
         RED.nodes.createNode(this, config);
@@ -38,7 +39,6 @@ module.exports = function (RED) {
                 body: postData
             };
 
-            console.log(options);
             request(options, function (error, response) {
                 if (error) throw new Error(error);
                 nodeContext.set('authCookie', response.headers['set-cookie']);
@@ -46,8 +46,22 @@ module.exports = function (RED) {
             });
         };
 
-        this.log(`starting endpoint: /melview/${node.id}/rooms`);
-        RED.httpAdmin.get(`/melview/${node.id}/rooms`, function (req, res) {
+        this.GetUnits = function(callback)
+        {
+            let nodeCache = nodeContext.get('NodeCache');
+
+            if (typeof nodeCache == 'undefined') {
+                nodeCache = new NodeCache();
+                nodeContext.set('NodeCache', nodeCache);
+            }
+
+            let buildings = nodeCache.get("buildings");
+
+            if (buildings !== undefined ){
+                callback(buildings);
+                return;
+            }
+
             node.getAuthCookie(function (authCookie) {
                 const options = {
                     'method': 'POST',
@@ -60,17 +74,25 @@ module.exports = function (RED) {
                 };
 
                 request(options, function (error, response) {
-                    if (error) throw new Error(error);
-
-                    let rooms;
+                    let buildings;
                     try {
-                        rooms = JSON.parse(response.body);
-                        console.log(JSON.stringify(rooms));
-                        res.send(rooms);
+                        buildings = JSON.parse(response.body);
+
+                        nodeCache.set( "buildings", buildings, 5 );
+                        nodeContext.set('NodeCache', nodeCache);
+
+                        callback(buildings);
                     } catch (e) {
                         node.error(`error: ${e.message}`);
                     }
                 });
+            });
+        };
+
+        this.log(`starting endpoint: /melview/${node.id}/rooms`);
+        RED.httpAdmin.get(`/melview/${node.id}/rooms`, function (req, res) {
+            node.GetUnits(function (response) {
+                res.send(response);
             });
         });
     }
