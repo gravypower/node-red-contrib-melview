@@ -1,6 +1,11 @@
+const Mutex = require('async-mutex').Mutex;
+const NodeCache = require("node-cache");
+
+const fetchingUnitsLock = new Mutex();
+const nodeCache = new NodeCache();
+
 module.exports = function (RED) {
     const request = require('request');
-    const NodeCache = require( "node-cache" );
 
     function MelviewConnectionNode(config) {
         RED.nodes.createNode(this, config);
@@ -17,7 +22,6 @@ module.exports = function (RED) {
             let authCookie = nodeContext.get('authCookie');
 
             if (typeof authCookie != 'undefined') {
-                node.log("Returning cookie form context.");
                 callback(authCookie);
                 return;
             }
@@ -46,18 +50,21 @@ module.exports = function (RED) {
             });
         };
 
-        this.GetUnits = function(callback)
-        {
-            let nodeCache = nodeContext.get('NodeCache');
-
-            if (typeof nodeCache == 'undefined') {
-                nodeCache = new NodeCache();
-                nodeContext.set('NodeCache', nodeCache);
-            }
+        this.GetUnits = async function (callback) {
 
             let buildings = nodeCache.get("buildings");
 
-            if (buildings !== undefined ){
+            if (buildings !== undefined) {
+                callback(buildings);
+                return;
+            }
+
+            const release = await fetchingUnitsLock.acquire();
+
+            buildings = nodeCache.get("buildings");
+
+            if (buildings !== undefined) {
+                release();
                 callback(buildings);
                 return;
             }
@@ -77,12 +84,11 @@ module.exports = function (RED) {
                     let buildings;
                     try {
                         buildings = JSON.parse(response.body);
-
-                        nodeCache.set( "buildings", buildings, 5 );
-                        nodeContext.set('NodeCache', nodeCache);
-
+                        nodeCache.set("buildings", buildings, 10);
+                        release();
                         callback(buildings);
                     } catch (e) {
+                        release();
                         node.error(`error: ${e.message}`);
                     }
                 });
@@ -105,7 +111,3 @@ module.exports = function (RED) {
             }
         });
 };
-
-
-
-

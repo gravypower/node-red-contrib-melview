@@ -5,6 +5,7 @@
             melviewConnection: {value:"", type:"melview-connection"},
             building: {value:""},
             unit: {value:""},
+            staticconfiguration : {value:true},
             power: {value:true},
             mode: {value:"MD8"},
             temperature:{value:"26", validate:function(v) {
@@ -12,7 +13,7 @@
                     return false;
 
                 const temp = parseFloat(v);
-                return temp >= 17 || temp <= 31;
+                return temp >= 16 || temp <= 31;
             }},
             fanspeed: {value:"FS0"},
             fandirection: {value:"AV0"},
@@ -33,6 +34,21 @@
                 $('.power-dependant').each(function() {
                     $(this).prop('disabled', !powerState );
                 });
+            });
+
+            $('#node-input-staticconfiguration').change(function() {
+                const staticConfiguration = this.checked;
+
+                if(staticConfiguration) {
+                    $("#static-configuration").show();
+                    $("#dynamic-configuration").hide();
+                }
+                else {
+                    $("#static-configuration").hide();
+                    $("#dynamic-configuration").show();
+                }
+
+
             });
 
             $.ajax({
@@ -95,51 +111,66 @@
     </div>
     <div class="form-row">
         <label for="node-input-unit"><i class="icon-tag"></i> Unit</label>
-        <select id="node-input-unit" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-power"><i class="icon-tag"></i> Power</label>
-        <input type="checkbox" id="node-input-power" />
-    </div>
-    <div class="form-row">
-        <label for="node-input-mode"><i class="icon-tag"></i> Mode</label>
-        <select id="node-input-mode" class="power-dependant">
-            <option value="MD8">Auto</option>
-            <option value="MD1">Heat</option>
-            <option value="MD2">DRY</option>
-            <option value="MD7">FAN</option>
-            <option value="MD3">Cooling</option>
+        <select id="node-input-unit" >
+            <option>Select Unit</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-temperature"><i class="icon-tag"></i> Set Temperature</label>
-        <input type="text" id="node-input-temperature" class="power-dependant">
+        <label for="node-input-staticconfiguration"><i class="icon-tag"></i> Static Configuration</label>
+        <input type="checkbox" id="node-input-staticconfiguration" style="width: auto;">
     </div>
-    <div class="form-row">
-        <label for="node-input-fanspeed"><i class="icon-tag"></i> Fan Speed</label>
-        <select id="node-input-fanspeed" class="power-dependant">
-            <option value="FS0">Auto</option>
-            <option value="FS1">One</option>
-            <option value="FS1">Two</option>
-            <option value="FS3">Tree</option>
-            <option value="FS5">Four</option>
-            <option value="FS6">Five</option>
-        </select>
-    </div>
+    <div id="static-configuration">
+        <div class="form-row">
+            <label for="node-input-power"><i class="icon-tag"></i> Power</label>
+            <input type="checkbox" id="node-input-power" class="static-configuration-dependant" style="width: auto;">
+        </div>
+        <div class="form-row">
+            <label for="node-input-mode"><i class="icon-tag"></i> Mode</label>
+            <select id="node-input-mode" class="power-dependant">
+                <option value="MD8">Auto</option>
+                <option value="MD1">Heat</option>
+                <option value="MD2">DRY</option>
+                <option value="MD7">FAN</option>
+                <option value="MD3">Cooling</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="node-input-temperature"><i class="icon-tag"></i> Set Temperature</label>
+            <input type="text" id="node-input-temperature" class="power-dependant">
+        </div>
+        <div class="form-row">
+            <label for="node-input-fanspeed"><i class="icon-tag"></i> Fan Speed</label>
+            <select id="node-input-fanspeed" class="power-dependant">
+                <option value="FS0">Auto</option>
+                <option value="FS1">One</option>
+                <option value="FS1">Two</option>
+                <option value="FS3">Tree</option>
+                <option value="FS5">Four</option>
+                <option value="FS6">Five</option>
+            </select>
+        </div>
 
-    <div class="form-row">
-        <label for="node-input-fandirection"><i class="icon-tag"></i> Fan Direction</label>
-        <select id="node-input-fandirection" class="power-dependant">
-            <option value="AV0">Auto</option>
-            <option value="AV7">Swing</option>
-            <option value="AV1">Direction 1 (top)</option>
-            <option value="AV2">Direction 2</option>
-            <option value="AV3">Direction 3</option>
-            <option value="AV4">Direction 4</option>
-            <option value="AV5">Direction 5</option>
-        </select>
+        <div class="form-row">
+            <label for="node-input-fandirection"><i class="icon-tag"></i> Fan Direction</label>
+            <select id="node-input-fandirection" class="power-dependant">
+                <option value="AV0">Auto</option>
+                <option value="AV7">Swing</option>
+                <option value="AV1">Direction 1 (top)</option>
+                <option value="AV2">Direction 2</option>
+                <option value="AV3">Direction 3</option>
+                <option value="AV4">Direction 4</option>
+                <option value="AV5">Direction 5</option>
+            </select>
+        </div>
     </div>
+    <div id="dynamic-configuration">
+        <h2>Dynamic Configuration</h2>
 
+        This allows you to use a payload to configure the command that is sent to melview.
+
+        {<br/>&nbsp;&nbsp;&nbsp;&nbsp;"$schema":&nbsp;"http://json-schema.org/draft-07/schema",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"$id":&nbsp;"http://gravypower.net/melviewcommand.json",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"type":&nbsp;"object",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"Melview&nbsp;Command",<br/>&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Command&nbsp;to&nbsp;send&nbsp;to&nbsp;Melview&nbsp;,<br/>&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;{},<br/>&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"power":&nbsp;false,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode":&nbsp;"MD8",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"temperature":&nbsp;"26",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fanspeed":&nbsp;"FS0",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fandirection":&nbsp;"AV0"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;"required":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"power"<br/>&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;"properties":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"power":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"$id":&nbsp;"#/properties/power",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type":&nbsp;"boolean",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"Power",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Turn&nbsp;unit&nbsp;on&nbsp;or&nbsp;off",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;false,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;false<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"mode":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;"",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Sets&nbsp;the&nbsp;mode&nbsp;of&nbsp;a&nbsp;unit",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"enum":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD8",&nbsp;//Auto<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD1",&nbsp;//Heat<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD2",&nbsp;//DRY<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD7",&nbsp;//FAN<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD3"&nbsp;//Cooling<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"MD8"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"Mode",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type":&nbsp;"string"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"temperature":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;"",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Sets&nbsp;the&nbsp;temperature&nbsp;of&nbsp;a&nbsp;unit",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"26"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"maximum":&nbsp;31,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"minimum":&nbsp;16,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"Temperature",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type":&nbsp;"number"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fanspeed":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;"",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Sets&nbsp;the&nbsp;fanspeed&nbsp;of&nbsp;a&nbsp;unit",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS0"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"Fanspeed",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"enum":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS0",&nbsp;//Auto<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS1",&nbsp;//One<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS1",&nbsp;//Two<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS3",&nbsp;//Three<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS5",&nbsp;//Four<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"FS6"&nbsp;//Five<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"type":&nbsp;"string"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"fandirection":&nbsp;{<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"default":&nbsp;"",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"description":&nbsp;"Sets&nbsp;the&nbsp;fandirection&nbsp;of&nbsp;a&nbsp;unit",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"examples":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV0"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"title":&nbsp;"fandirection",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"enum":&nbsp;[<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV0",&nbsp;//Auto<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV7",&nbsp;//Swing<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV1",&nbsp;//Direction&nbsp;1&nbsp;(top)<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV2",&nbsp;//Direction&nbsp;2<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV3",&nbsp;//Direction&nbsp;3<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV4",&nbsp;//Direction&nbsp;4<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"AV5"&nbsp;//Direction&nbsp;5<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>&nbsp;&nbsp;&nbsp;&nbsp;},<br/>&nbsp;&nbsp;&nbsp;&nbsp;"additionalProperties":&nbsp;true<br/>}
+
+    </div>
 </script>
 
 <script type="text/html" data-help-name="unit-command">

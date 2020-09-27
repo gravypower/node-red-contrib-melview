@@ -20,14 +20,14 @@ module.exports = function (RED) {
                 commands.push(command);
         }
 
-        function GetTempCommand(temp) {
+        function getTempCommand(temp) {
             if(isNaN(temp)) {
                 node.error("temperature is not a number");
                 validTemperature = false;
             }
 
             const t = parseFloat(temp);
-            if(t < 17 || t > 31)
+            if(t < 16 || t > 31)
             {
                 node.error("Temperature out of range");
                 validTemperature = false;
@@ -39,17 +39,37 @@ module.exports = function (RED) {
             return 'TS' + temp;
         }
 
-        node.on('input', function (msg) {
+        function buildCommand(msg) {
             let commands = [];
-            if (config.power) {
-                addCommand(config.power, commands);
-                addCommand(config.mode, commands);
-                addCommand(config.fanspeed, commands);
-                addCommand(config.direction, commands);
-                addCommand(GetTempCommand(config.temperature), commands);
+
+            if (config.staticconfiguration) {
+                if (config.power) {
+                    commands.push('PW1');
+                    addCommand(config.mode, commands);
+                    addCommand(config.fanspeed, commands);
+                    addCommand(config.direction, commands);
+                    addCommand(getTempCommand(config.temperature), commands);
+                } else {
+                    commands.push('PW0');
+                }
             } else {
-                commands.push('PW0');
+                if(msg.payload.power){
+                    commands.push('PW1');
+                }
+                else{
+                    commands.push('PW0');
+                }
+
+                addCommand(msg.payload.mode, commands);
+                addCommand(msg.payload.fanspeed, commands);
+                addCommand(msg.payload.direction, commands);
+                addCommand(getTempCommand(msg.payload.temperature), commands);
             }
+            return commands;
+        }
+
+        node.on('input', function (msg) {
+            let commands = buildCommand(msg);
 
             let postData = JSON.stringify({
                 'unitid': config.unit,

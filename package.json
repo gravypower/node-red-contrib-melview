@@ -30,6 +30,7 @@
   "author": "Aaron Job",
   "license": "Apache License 2.0",
   "dependencies": {
+    "async-mutex": "^0.2.4",
     "node-cache": "^5.1.2",
     "request": "^2.88.0"
   }
