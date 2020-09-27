@@ -1,0 +1,94 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://gravypower.net/melviewcommand.json",
+    "type": "object",
+    "title": "Melview Command",
+    "description": "Command to send to Melview ,
+    "default": {},
+    "examples": [
+        {
+            "power": false,
+            "mode": "MD8",
+            "temperature": "26",
+            "fanspeed": "FS0",
+            "fandirection": "AV0"
+        }
+    ],
+    "required": [
+        "power"
+    ],
+    "properties": {
+        "power": {
+            "$id": "#/properties/power",
+            "type": "boolean",
+            "title": "Power",
+            "description": "Turn unit on or off",
+            "default": false,
+            "examples": [
+                false
+            ]
+        },
+        "mode": {
+            "default": "",
+            "description": "Sets the mode of a unit",
+            "enum": [
+                "MD8", //Auto
+                "MD1", //Heat
+                "MD2", //DRY
+                "MD7", //FAN
+                "MD3" //Cooling
+            ],
+            "examples": [
+                "MD8"
+            ],
+            "title": "Mode",
+            "type": "string"
+        },
+        "temperature": {
+            "default": "",
+            "description": "Sets the temperature of a unit",
+            "examples": [
+                "26"
+            ],
+            "maximum": 31,
+            "minimum": 16,
+            "title": "Temperature",
+            "type": "number"
+        },
+        "fanspeed": {
+            "default": "",
+            "description": "Sets the fanspeed of a unit",
+            "examples": [
+                "FS0"
+            ],
+            "title": "Fanspeed",
+            "enum": [
+                "FS0", //Auto
+                "FS1", //One
+                "FS1", //Two
+                "FS3", //Three
+                "FS5", //Four
+                "FS6" //Five
+            ],
+            "type": "string"
+        },
+        "fandirection": {
+            "default": "",
+            "description": "Sets the fandirection of a unit",
+            "examples": [
+                "AV0"
+            ],
+            "title": "fandirection",
+            "enum": [
+                "AV0", //Auto
+                "AV7", //Swing
+                "AV1", //Direction 1 (top)
+                "AV2", //Direction 2
+                "AV3", //Direction 3
+                "AV4", //Direction 4
+                "AV5" //Direction 5
+            ]
+        }
+    },
+    "additionalProperties": true
+}
