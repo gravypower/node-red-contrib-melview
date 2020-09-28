@@ -7,6 +7,7 @@
             unit: {value:""},
             staticconfiguration : {value:true},
             power: {value:true},
+            testrun: {value:false},
             mode: {value:"MD8"},
             temperature:{value:"26", validate:function(v) {
                 if(isNaN(v))
@@ -114,6 +115,10 @@
         <select id="node-input-unit" >
             <option>Select Unit</option>
         </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-testrun"><i class="icon-tag"></i> Test Run</label>
+        <input type="checkbox" id="node-input-testrun" style="width: auto;">
     </div>
     <div class="form-row">
         <label for="node-input-staticconfiguration"><i class="icon-tag"></i> Static Configuration</label>

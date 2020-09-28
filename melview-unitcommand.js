@@ -7,6 +7,7 @@ module.exports = function (RED) {
         this.building = config.building;
         this.unit = config.unit;
         this.power = config.power;
+        this.testrun = config.testrun;
         this.mode = config.mode;
         this.fanspeed = config.fanspeed;
         this.direction = config.direction;
@@ -43,23 +44,18 @@ module.exports = function (RED) {
             let commands = [];
 
             if (config.staticconfiguration) {
+                addCommand(config.mode, commands);
+                addCommand(config.fanspeed, commands);
+                addCommand(config.direction, commands);
+                addCommand(getTempCommand(config.temperature), commands);
+
                 if (config.power) {
                     commands.push('PW1');
-                    addCommand(config.mode, commands);
-                    addCommand(config.fanspeed, commands);
-                    addCommand(config.direction, commands);
-                    addCommand(getTempCommand(config.temperature), commands);
                 } else {
                     commands.push('PW0');
                 }
             } else {
-                if(msg.payload.power){
-                    commands.push('PW1');
-                }
-                else{
-                    commands.push('PW0');
-                }
-
+                addCommand(msg.payload.power, commands);
                 addCommand(msg.payload.mode, commands);
                 addCommand(msg.payload.fanspeed, commands);
                 addCommand(msg.payload.direction, commands);
@@ -90,10 +86,16 @@ module.exports = function (RED) {
                     body: postData
                 };
 
+                if(config.testrun)
+                {
+                    node.log(`test run command: ${postData}`);
+                    return ;
+                }
+
                 if(validTemperature) {
                     request(options, function (error, response) {
                         if (error) node.error(error);
-                        node.log(`sending command: ${postData}`)
+                        node.log(`sending command: ${postData}`);
                         node.send(msg);
                     });
                 }
