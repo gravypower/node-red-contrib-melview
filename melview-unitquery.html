@@ -1,21 +1,51 @@
 <script type="text/javascript">
+
+    function getBuilding (buildings, buildingId) {
+        return $.grep(buildings, function (n, i) {
+            return (n.buildingid === buildingId);
+        })
+    }
+
+    function getRoom (rooms, roomId) {
+        return $.grep(rooms, function (n, i) {
+            return (n.unitid === roomId);
+        })
+    }
+
     RED.nodes.registerType('unit-query',{
         category: 'melview',
         defaults: {
             melviewConnection: {value:"", type:"melview-connection"},
-            building: {value:""},
-            unit: {value:""}
+            buildingId: {value:""},
+            unitId: {value:""}
         },
         inputs:1,
         outputs:1,
         icon: "file.png",
         label: function() {
-            return this.name || " unit-query";
+            const buildingId = this.buildingId;
+            const unitId = this.unitId;
+            const name = this.name;
+            let lable = "unit-query";
+            $.ajax({
+                headers: {
+                    Accept: 'application/json'
+                },
+                async: false,
+                cache: !1,
+                url: 'melview/' + this.melviewConnection + '/rooms',
+                success: function (buildings) {
+                    const b = getBuilding(buildings, buildingId);
+                    const r = getRoom(b[0].units, unitId);
+                    lable = name || `${b.building} - ${r.room} - unit-query`;
+                }
+            });
+
+            return lable;
         },
         oneditprepare: function () {
-            const melviewConnectionNodeId = this.melviewConnection;
-            const nodeBuildingId = this.building;
-            const nodeUnitId = this.unit;
+            const nodeBuildingId = this.buildingId;
+            const nodeUnitId = this.unitId;
 
             $('#node-input-power').change(function() {
                 const powerState = this.checked;
@@ -29,15 +59,15 @@
                     Accept: 'application/json'
                 },
                 cache: !1,
-                url: 'melview/' + melviewConnectionNodeId + '/rooms',
+                url: 'melview/' + this.melviewConnection + '/rooms',
                 success: function (buildings) {
-                    let buildingSelectList = $('#node-input-building').empty();
-                    let unitSelectList = $('#node-input-unit').empty();
+
+                    let buildingSelectList = $('#node-input-buildingId').empty();
+                    let unitSelectList = $('#node-input-unitId').empty();
+
                     const populateUnitSelectList = function(buildingId)
                     {
-                        var building = $.grep(buildings, function (n, i) {
-                            return (n.buildingid === buildingId);
-                        });
+                        const building = getBuilding(buildings, buildingId);
 
                         building[0].units.forEach(function(r) {
                             const roomOption = $(`<option value=\'${r.unitid}\'> ${r.room} </option>`)
@@ -62,8 +92,7 @@
                     });
 
                     buildingSelectList.change(function () {
-                        var buildingId = $(this).val();
-                        populateUnitSelectList(buildingId);
+                        populateUnitSelectList($(this).val());
                     });
                 }
             });
@@ -77,14 +106,16 @@
         <input type="text" id="node-input-melviewConnection" placeholder="Melview Connection">
     </div>
     <div class="form-row">
-        <label for="node-input-building"><i class="icon-tag"></i> Building</label>
-        <select id="node-input-building">
+        <label for="node-input-buildingId"><i class="icon-tag"></i> Building</label>
+        <select id="node-input-buildingId">
             <option>Select Building</option>
         </select>
     </div>
     <div class="form-row">
-        <label for="node-input-unit"><i class="icon-tag"></i> Unit</label>
-        <select id="node-input-unit" />
+        <label for="node-input-unitId"><i class="icon-tag"></i> Unit</label>
+        <select id="node-input-unitId" >
+            <option>Select Unit</option>
+        </select>
     </div>
 
 
