@@ -3,7 +3,7 @@
     "$id": "http://gravypower.net/melviewcommand.json",
     "type": "object",
     "title": "Melview Command",
-    "description": "Command to send to Melview ,
+    "description": "Command to send to Melview",
     "default": {},
     "examples": [
         {
